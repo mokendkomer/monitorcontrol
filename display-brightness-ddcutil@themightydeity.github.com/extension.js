@@ -184,6 +184,7 @@ export default class DDCUtilBrightnessControlExtension extends Extension {
 
     setBrightness(display, newValue) {
         let newBrightness = parseInt((newValue / 100) * display.max);
+        let newContrast = parseInt(Math.round(((newValue / 100) * display.max) / 4));
         if (newBrightness === 0) {
             if (!this.settings.get_boolean('allow-zero-brightness'))
                 newBrightness = minBrightness;
@@ -192,8 +193,9 @@ export default class DDCUtilBrightnessControlExtension extends Extension {
         const ddcutilAdditionalArgs = this.settings.get_string('ddcutil-additional-args');
         const sleepMultiplier = this.settings.get_double('ddcutil-sleep-multiplier') / 40;
         const writer = () => {
-            brightnessLog(this.settings, `async ${ddcutilPath} setvcp 10 ${newBrightness} --bus ${display.bus} --sleep-multiplier ${sleepMultiplier} ${ddcutilAdditionalArgs}`);
-            GLib.spawn_command_line_async(`${ddcutilPath} setvcp 10 ${newBrightness} --bus ${display.bus} --sleep-multiplier ${sleepMultiplier} ${ddcutilAdditionalArgs}`);
+            brightnessLog(this.settings, `async ${ddcutilPath} setvcp 10 ${newBrightness} 12 ${newContrast} --bus ${display.bus} --sleep-multiplier ${sleepMultiplier} ${ddcutilAdditionalArgs}`);
+            GLib.spawn_command_line_async(`${ddcutilPath} setvcp 10 ${newBrightness} 12 ${newContrast} --bus ${display.bus} --sleep-multiplier ${sleepMultiplier} ${ddcutilAdditionalArgs}`);
+            
         };
         brightnessLog(this.settings, `display ${display.name}, current: ${display.current} => ${newValue / 100}, new brightness: ${newBrightness}, new value: ${newValue}`);
         display.current = newValue / 100;
